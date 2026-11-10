@@ -5,8 +5,11 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('image-to-text-converter');
+  protected readonly title = signal('My first Angular app');
+  protected onFileSelected(): void {
+    console.log('File selection changed');
+  }
 }
