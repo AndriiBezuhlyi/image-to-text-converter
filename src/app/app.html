@@ -9,25 +9,63 @@
       <h2>Upload Image</h2>
 
       <div class="upload-area">
-        <input type="file" id="image-upload" accept="image/jpeg,image/png" (change)="onFileSelected()"/>
+        <input
+          #fileInput
+          type="file"
+          id="image-upload"
+          accept="image/jpeg,image/png"
+          (change)="onFileSelected($event)"
+          [disabled]="isLoading()"
+        />
 
         <label for="image-upload"> Choose an image </label>
 
         <p>Supported formats: JPEG, PNG</p>
         <p>Maximum file size: 2 MB</p>
       </div>
+
+      @if (selectedFile()) {
+        <p>
+          {{ selectedFile()?.name }}
+        </p>
+      }
+
+      <button
+        class="upload-clear"
+        type="button"
+        (click)="clearSelection(fileInput)"
+        [disabled]="isLoading()"
+      >
+        Clear
+      </button>
     </section>
+
+    @if (errorMessage()) {
+      <p style="color: rgb(194, 0, 0); display: flex; justify-content: center" role="alert">
+        {{ errorMessage() }}
+      </p>
+    }
 
     <section class="preview-section">
       <h2>Image Preview</h2>
 
       <div class="preview-container">
-        <p>No image selected</p>
+        @if (previewUrl()) {
+          <img [src]="previewUrl()" alt="Selected image preview" />
+        } @else {
+          <p>No image selected</p>
+        }
       </div>
     </section>
 
     <section class="converter-actions">
-      <button type="button" disabled>Extract Text</button>
+      <button (click)="recognizeText()" type="button" [disabled]="!selectedFile() || isLoading()">
+        @if (!isLoading()) {
+          Extract Text
+        } @else {
+          Recognizing...
+        }
+      </button>
     </section>
 
     <section class="result-section">
@@ -38,12 +76,28 @@
         id="ExtractedText"
         rows="8"
         readonly
+        [value]="recognizedText()"
       ></textarea>
 
-      <div class="result-actions">
-        <button type="button" disabled>Copy Text</button>
+      @if (hasRecognized() && !recognizedText().trim()) {
+        <p role="status">No text found in this image.</p>
+      }
 
-        <button type="button" disabled>Clear</button>
+      <div class="result-actions">
+        @if (copyMessage()) {
+          <p style="color: green" role="status">{{ copyMessage() }}</p>
+        }
+        <button
+          type="button"
+          (click)="copyText()"
+          [disabled]="isLoading() || !recognizedText().trim()"
+        >
+          Copy Text
+        </button>
+
+        <button type="button" (click)="clearSelection(fileInput)" [disabled]="isLoading()">
+          Clear
+        </button>
       </div>
     </section>
   </section>
